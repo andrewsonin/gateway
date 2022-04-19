@@ -25,6 +25,7 @@ class DataLoader(Node):
                 return self.load_cached()
             data = self._output_validator.validate(self.load())
             self.dump_to_cache(data)
+            self._already_cached = True
             return data
         return self._output_validator.validate(self.load())
 
