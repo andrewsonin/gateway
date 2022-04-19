@@ -12,20 +12,20 @@ __all__ = (
 
 
 class DataLoader(Node):
-    __slots__ = ('_already_cached', '_output_validator')
+    __slots__ = ('already_cached', '_output_validator')
 
     def __init__(self, output_validator: pa.DataFrameSchema = AnyDataFrame) -> None:
         super().__init__()
-        self._already_cached: bool = False
+        self.already_cached: bool = False
         self._output_validator = output_validator
 
     def get(self) -> pd.DataFrame:
         if self.use_cached:
-            if self._already_cached:
+            if self.already_cached:
                 return self.load_cached()
             data = self._output_validator.validate(self.load())
             self.dump_to_cache(data)
-            self._already_cached = True
+            self.already_cached = True
             return data
         return self._output_validator.validate(self.load())
 
