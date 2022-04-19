@@ -29,6 +29,9 @@ class DataLoader(Node):
             return data
         return self._output_validator.validate(self.load())
 
+    def hang_on(self, *positional_nodes: Node, **keyword_nodes: Node) -> None:
+        raise NotImplementedError("DataLoader instance cannot be hung on any other Node instances")
+
     @abstractmethod
     def load(self) -> pd.DataFrame:
         pass

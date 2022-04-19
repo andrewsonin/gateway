@@ -17,6 +17,10 @@ class Node(metaclass=ABCMeta):
     def get(self) -> pd.DataFrame:
         pass
 
+    @abstractmethod
+    def hang_on(self, *positional_nodes: 'Node', **keyword_nodes: 'Node') -> None:
+        pass
+
     @property
     @abstractmethod
     def use_cached(self) -> bool:
