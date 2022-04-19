@@ -32,14 +32,3 @@ class DataLoader(Node):
     @abstractmethod
     def load(self) -> pd.DataFrame:
         pass
-
-    @property
-    @abstractmethod
-    def use_cached(self) -> bool:
-        pass
-
-    def dump_to_cache(self, data: pd.DataFrame) -> None:
-        raise NotImplementedError("dump_to_cache is not implemented")
-
-    def load_cached(self) -> pd.DataFrame:
-        raise NotImplementedError("load_cached is not implemented")
