@@ -18,6 +18,7 @@ jupyterlab = "^3.3.4"
 mypy = "^0.942"
 toml = "^0.10.2"
 types-setuptools = "^57.4.14"
+types-toml = "^0.10.5"
 pandas-stubs = "^1.2.0"
 
 [build-system]

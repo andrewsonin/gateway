@@ -1,22 +1,25 @@
 from setuptools import setup, find_packages
 from toml import load as load_toml
 from typing import Tuple
+from pathlib import Path
 
 
 def extract_author_and_email(pyproject_entry: str) -> Tuple[str, str]:
     author, author_email = pyproject_entry.split('<')
     author = author.strip()
-    author_email = author_email.replace('>', '')
+    author_email = author_email.replace('>', '').strip()
     return author, author_email
 
 
-with open('LICENSE', 'r') as f:
+PROJECT_DIR = Path(__file__).resolve().parent
+
+with open(PROJECT_DIR / 'LICENSE', 'r') as f:
     LICENCE = f.read()
 
-with open('README.md', 'r') as f:
+with open(PROJECT_DIR / 'README.md', 'r') as f:
     README = f.read()
 
-pyproject_info = load_toml('pyproject.toml')['tool']['poetry']
+pyproject_info = load_toml(PROJECT_DIR / 'pyproject.toml')['tool']['poetry']
 author, author_email = extract_author_and_email(pyproject_info['authors'][0])
 
 setup(
