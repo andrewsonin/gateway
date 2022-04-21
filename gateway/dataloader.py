@@ -1,13 +1,10 @@
-from abc import abstractmethod
-from io import RawIOBase, BufferedIOBase, TextIOBase, TextIOWrapper
-from mmap import mmap
-from os import PathLike
-from typing import Tuple, Any, Union, IO, Optional, Callable, Dict
+from typing import Any, Optional, Callable
 
 import pandas as pd
 import pandera as pa
 
 from gateway.node import Node
+from gateway.typing import PD_READ_PICKLE_ANNOTATION
 from gateway.validators import AnyDataFrame
 
 __all__ = (
@@ -16,53 +13,40 @@ __all__ = (
 
 
 class DataLoader(Node):
-    __slots__ = ()
-
-    @abstractmethod
-    def _load(self) -> pd.DataFrame:
-        pass
-
-    def _load_non_cached(self) -> pd.DataFrame:
-        return self._load()
-
-    def hang_on_parental_nodes(self, *positional_nodes: Node, **keyword_nodes: Node) -> None:
-        raise NotImplementedError("DataLoader instance cannot be hung on any other Node instances")
-
-
-class StaticDataLoader(DataLoader):
     __slots__ = ('__loader', '__loader_args', '__loader_kwargs')
-    use_cached = True
 
     def __init__(self,
                  loader: Callable[..., pd.DataFrame],
                  *loader_args: Any,
-                 output_validator: pa.DataFrameSchema = AnyDataFrame,
+                 output_validator: pa.DataFrameSchema,
                  **loader_kwargs: Any) -> None:
-        super().__init__(output_validator=output_validator, already_cached=True)
+        super().__init__(output_validator=output_validator, already_cached=False)
         self.__loader = loader
         self.__loader_args = loader_args
         self.__loader_kwargs = loader_kwargs
 
-    def _load_cached(self) -> pd.DataFrame:
+    def _load_default(self) -> pd.DataFrame:
         return self.__loader(*self.__loader_args, **self.__loader_kwargs)
 
+
+class StaticDataLoader(DataLoader):
+    __slots__ = ()
+
+    @property
+    def use_cached(self) -> bool:
+        return True
+
+    def transform_data(self, data: pd.DataFrame) -> pd.DataFrame:
+        return data
+
+    def _dump_to_cache(self, data: pd.DataFrame) -> None:
+        pass
+
+    def _load_cached(self) -> pd.DataFrame:
+        return self._load_default()
+
     def _load_non_cached(self) -> pd.DataFrame:
-        raise NotImplementedError("StaticDataLoader does not implement `_load_non_cached`. Use `load_cached` instead")
-
-    def _load(self) -> pd.DataFrame:
-        raise NotImplementedError("StaticDataLoader does not implement `load`. Use `load_cached` instead")
-
-
-PD_READ_PICKLE_ANNOTATION = Union[
-    PathLike,
-    str,
-    IO[str],
-    RawIOBase,
-    BufferedIOBase,
-    TextIOBase,
-    TextIOWrapper,
-    mmap
-]
+        return self._load_default()
 
 
 class PickleLoader(StaticDataLoader):
@@ -89,7 +73,3 @@ class PickleLoader(StaticDataLoader):
     @property
     def filepath_or_buffer(self) -> PD_READ_PICKLE_ANNOTATION:
         return self.__filepath_or_buffer
-
-
-if __name__ == '__main__':
-    print(PickleLoader('f').extract_data())

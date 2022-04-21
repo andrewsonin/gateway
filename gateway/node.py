@@ -32,6 +32,7 @@ class Node(metaclass=ABCMeta):
         if self.already_cached:
             return self._load_cached()
         data = self._load_non_cached()
+        data = self.transform_data(data)
         data = self._output_validator.validate(data)
         if self.use_cached:
             self._dump_to_cache(data)
@@ -39,7 +40,7 @@ class Node(metaclass=ABCMeta):
         return data
 
     @abstractmethod
-    def hang_on_parental_nodes(self, *positional_nodes: 'Node', **keyword_nodes: 'Node') -> None:
+    def transform_data(self, data: pd.DataFrame) -> pd.DataFrame:
         pass
 
     @property
@@ -51,11 +52,13 @@ class Node(metaclass=ABCMeta):
         return self.__output_validator
 
     @abstractmethod
-    def _load_non_cached(self) -> pd.DataFrame:
+    def _dump_to_cache(self, data: pd.DataFrame) -> None:
         pass
 
-    def _dump_to_cache(self, data: pd.DataFrame) -> None:
-        raise NotImplementedError("dump_to_cache is not implemented")
-
+    @abstractmethod
     def _load_cached(self) -> pd.DataFrame:
-        raise NotImplementedError("load_cached is not implemented")
+        pass
+
+    @abstractmethod
+    def _load_non_cached(self) -> pd.DataFrame:
+        pass
