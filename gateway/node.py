@@ -1,4 +1,6 @@
 from abc import ABCMeta, abstractmethod
+from collections import defaultdict
+from typing import Dict, Set
 
 import pandas as pd
 import pandera as pa
@@ -9,6 +11,8 @@ __all__ = ('Node',)
 class Node(metaclass=ABCMeta):
     __slots__ = ('__gateway_id', '__already_cached', '__output_validator')
     __instance_counter = 0
+    __parental_graph: Dict['Node', Set['Node']] = defaultdict(set)
+    __children_graph: Dict['Node', Set['Node']] = defaultdict(set)
 
     def __init__(self,
                  *,
@@ -19,6 +23,22 @@ class Node(metaclass=ABCMeta):
         self.__already_cached = already_cached
         self.__output_validator = output_validator
 
+    def __hash__(self) -> int:
+        return self.__gateway_id
+
+    def _add_edge_to_connection_graph(self, parent_node: 'Node') -> None:
+        Node.__parental_graph[self].add(parent_node)
+        Node.__children_graph[parent_node].add(self)
+
+    def reset_cache_status(self, *, _reset_in_children: bool = True) -> None:
+        self.__already_cached = False
+        if _reset_in_children:
+            children_graph = Node.__children_graph
+            children = children_graph[self].copy()
+            # for child in
+            for child in Node.__children_graph[self]:
+                child.reset_cache_status(_reset_in_children=False)
+
     @property
     def already_cached(self) -> bool:
         return self.__already_cached
@@ -28,10 +48,10 @@ class Node(metaclass=ABCMeta):
     def use_cached(self) -> bool:
         pass
 
-    def extract_data(self) -> pd.DataFrame:
+    def extract_data(self, *, _assert_no_cycles: bool = True) -> pd.DataFrame:
         if self.already_cached:
             return self._load_cached()
-        data = self._load_non_cached()
+        data = self._load_non_cached(_assert_no_cycles=_assert_no_cycles)
         data = self.transform_data(data)
         data = self._output_validator.validate(data)
         if self.use_cached:
@@ -60,5 +80,5 @@ class Node(metaclass=ABCMeta):
         pass
 
     @abstractmethod
-    def _load_non_cached(self) -> pd.DataFrame:
+    def _load_non_cached(self, *, _assert_no_cycles: bool = True) -> pd.DataFrame:
         pass
