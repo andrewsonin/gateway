@@ -3,6 +3,10 @@ from mmap import mmap
 from os import PathLike
 from typing import Union, IO
 
+__all__ = (
+    'PD_READ_PICKLE_ANNOTATION',
+)
+
 PD_READ_PICKLE_ANNOTATION = Union[
     PathLike,
     str,

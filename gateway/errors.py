@@ -1,6 +1,12 @@
+__all__ = (
+    'GatewayError',
+    'LoopedGraphError'
+)
+
+
 class GatewayError(Exception):
     __slots__ = ()
 
 
-class GraphIsLoopedError(GatewayError):
+class LoopedGraphError(GatewayError):
     __slots__ = ()

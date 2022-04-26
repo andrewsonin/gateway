@@ -1,7 +1,9 @@
+from typing import Final
+
 from pandera import DataFrameSchema
 
 __all__ = (
     'AnyDataFrame',
 )
 
-AnyDataFrame = DataFrameSchema()
+AnyDataFrame: Final = DataFrameSchema()
