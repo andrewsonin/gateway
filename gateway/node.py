@@ -1,6 +1,7 @@
 from abc import ABCMeta, abstractmethod
 from collections import defaultdict
 from typing import Dict, Set, final
+from warnings import warn
 
 import pandas as pd
 import pandera as pa
@@ -99,7 +100,7 @@ class Node(metaclass=ABCMeta):
             return self._load_cached()
         if not self._is_parental_graph_topo_sorted:
             node_id = self.__gateway_id
-            raise LoopedGraphError(f"Parental graph of Node with ID={node_id} has loops")
+            raise LoopedGraphError(f"Parental graph of Node (ID={node_id}) has loops")
         data = self._load_non_cached()
         data = self.transform_data(data)
         data = self.__output_validator.validate(data)
@@ -107,6 +108,23 @@ class Node(metaclass=ABCMeta):
             self._dump_to_cache(data)
             self.__already_cached = True
         return data
+
+    @final
+    def cache_all(self) -> None:
+        if self.already_cached:
+            return
+        if not self.use_cached:
+            node_id = self.__gateway_id
+            warn(f"'cache_all' called for Node (ID={node_id}) with False 'use_cached' property", RuntimeWarning)
+            return
+        if not self._is_parental_graph_topo_sorted:
+            node_id = self.__gateway_id
+            raise LoopedGraphError(f"Parental graph of Node (ID={node_id}) has loops")
+        data = self._load_non_cached()
+        data = self.transform_data(data)
+        data = self.__output_validator.validate(data)
+        self._dump_to_cache(data)
+        self.__already_cached = True
 
     @abstractmethod
     def _dump_to_cache(self, data: pd.DataFrame) -> None:
