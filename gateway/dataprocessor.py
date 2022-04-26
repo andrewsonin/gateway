@@ -1,4 +1,4 @@
-from typing import Optional, Union, Dict, List
+from typing import Optional, Union, Dict, List, final
 
 import pandas as pd
 import pandera as pa
@@ -35,23 +35,8 @@ class DataProcessor(Node):
         self.__positional_node_connections: List[NodeConnection] = []
         self.__named_node_connections: Dict[str, NodeConnection] = {}
 
-    def reset_cache_status(self) -> None:
-        super().reset_cache_status()
-
-    @property
-    def _is_parental_graph_topo_sorted(self) -> bool:
-        cur_node_id = self._gateway_id
-        connection_graph = DataProcessor.__parental_graph
-
-        visited_nodes = {cur_node_id}
-        nodes_to_visit = connection_graph[cur_node_id].copy()
-        while nodes_to_visit:
-            cur_node_id = nodes_to_visit.pop()
-            if cur_node_id in visited_nodes:
-                return False
-            visited_nodes.add(cur_node_id)
-            nodes_to_visit |= connection_graph[cur_node_id]
-        return True
+    def drop_cache(self) -> None:
+        super().drop_cache()
 
     @property
     def positional_node_connections(self) -> List[NodeConnection]:
@@ -61,10 +46,11 @@ class DataProcessor(Node):
     def named_node_connections(self) -> Dict[str, NodeConnection]:
         return self.__named_node_connections.copy()
 
+    @final
     def connect_parental_node(self,
                               node_connection: Union[Node, NodeConnection],
                               keyword: Optional[str] = None) -> None:
-        self.reset_cache_status()
+        self.drop_cache()
         if isinstance(node_connection, Node):
             node_connection = NodeConnection(node_connection)
         if keyword is None:
@@ -76,6 +62,7 @@ class DataProcessor(Node):
             named_node_connections[keyword] = node_connection
         self._add_edge_to_connection_graph(node_connection.node)
 
+    @final
     def connect_parental_nodes(self,
                                *positional_nodes: Union[Node, NodeConnection],
                                **keyword_nodes: Union[Node, NodeConnection]) -> None:
