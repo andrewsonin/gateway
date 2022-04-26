@@ -4,8 +4,8 @@ from typing import Optional, Union, Dict, List, final, Tuple, Iterator, Iterable
 import pandas as pd
 import pandera as pa
 
-from gateway.node import Node
-from gateway.validators import AnyDataFrame
+from pandakeeper.node import Node
+from pandakeeper.validators import AnyDataFrame
 
 __all__ = (
     'NodeConnection',

@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "gateway"
+name = "pandakeeper"
 version = "0.0.1"
 description = "Python library designed to simplify the validation of dataset manipulations."
 authors = ["Andrew Sonin <sonin.cel@yandex.ru>"]
@@ -17,7 +17,6 @@ jupyter = "^1.0.0"
 jupyterlab = "^3.3.4"
 mypy = "^0.942"
 toml = "^0.10.2"
-pyarrow = ">=6,<7"
 types-setuptools = "^57.4.14"
 types-toml = "^0.10.5"
 pandas-stubs = "^1.2.0"

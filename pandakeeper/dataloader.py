@@ -3,9 +3,9 @@ from typing import Any, Optional, Callable, final
 import pandas as pd
 import pandera as pa
 
-from gateway.node import Node
-from gateway.typing import PD_READ_PICKLE_ANNOTATION
-from gateway.validators import AnyDataFrame
+from pandakeeper.node import Node
+from pandakeeper.typing import PD_READ_PICKLE_ANNOTATION
+from pandakeeper.validators import AnyDataFrame
 
 __all__ = (
     'DataLoader',

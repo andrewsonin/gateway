@@ -6,7 +6,7 @@ from warnings import warn
 import pandas as pd
 import pandera as pa
 
-from gateway.errors import LoopedGraphError
+from pandakeeper.errors import LoopedGraphError
 
 __all__ = ('Node',)
 
