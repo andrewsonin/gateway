@@ -29,7 +29,7 @@ setup(
     long_description=README,
     author=author,
     author_email=author_email,
-    url='https://github.com/andrewsonin/gateway',
+    url='https://github.com/andrewsonin/pandakeeper',
     license=LICENCE,
     packages=find_packages(exclude=('tests', 'docs'))
 )
