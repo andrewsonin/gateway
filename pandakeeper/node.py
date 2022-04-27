@@ -1,10 +1,11 @@
 from abc import ABCMeta, abstractmethod
 from collections import defaultdict
-from typing import Dict, Set, final
+from typing import Dict, Set
 from warnings import warn
 
 import pandas as pd
 import pandera as pa
+from typing_extensions import final
 
 from pandakeeper.errors import LoopedGraphError
 

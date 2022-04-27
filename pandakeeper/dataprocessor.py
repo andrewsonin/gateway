@@ -1,8 +1,9 @@
 from itertools import chain, repeat
-from typing import Optional, Union, Dict, List, final, Tuple, Iterator, Iterable
+from typing import Optional, Union, Dict, List, Tuple, Iterator, Iterable
 
 import pandas as pd
 import pandera as pa
+from typing_extensions import final
 
 from pandakeeper.node import Node
 from pandakeeper.validators import AnyDataFrame

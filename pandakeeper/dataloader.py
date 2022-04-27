@@ -1,7 +1,8 @@
-from typing import Any, Optional, Callable, final
+from typing import Any, Optional, Callable
 
 import pandas as pd
 import pandera as pa
+from typing_extensions import final
 
 from pandakeeper.node import Node
 from pandakeeper.typing import PD_READ_PICKLE_ANNOTATION
