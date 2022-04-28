@@ -69,9 +69,10 @@ class StaticDataLoader(DataLoader):
     def _clear_cache_storage(self) -> None:
         pass
 
+    @final
     @property
     def use_cached(self) -> bool:
-        return True
+        return False
 
     @final
     def transform_data(self, data: pd.DataFrame) -> pd.DataFrame:

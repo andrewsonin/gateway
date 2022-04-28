@@ -11,13 +11,14 @@ __all__ = ('SqlLoader',)
 
 
 class SqlLoader(StaticDataLoader):
-    __slots__ = ('__sql_context_creator', '__context_processor')
+    __slots__ = ('__read_sql_fn', '__sql_context_creator', '__context_processor')
 
     def __init__(
             self,
             sql_context_creator: Callable[..., Any],
             sql_query: str,
             *,
+            read_sql_fn: Callable[..., pd.DataFrame] = pd.read_sql,
             read_sql_args: Tuple[Any, ...] = (),
             read_sql_kwargs: Mapping[str, Any] = empty_mapping_proxy,
             output_validator: pa.DataFrameSchema,
@@ -37,6 +38,7 @@ class SqlLoader(StaticDataLoader):
             context_processor_kwargs,
             output_validator=output_validator
         )
+        self.__read_sql_fn = read_sql_fn
         self.__sql_context_creator = sql_context_creator
         self.__context_processor = context_processor
 
@@ -52,7 +54,12 @@ class SqlLoader(StaticDataLoader):
             context_processor_kwargs: Mapping[str, Any]) -> pd.DataFrame:
         with self.__sql_context_creator(*context_creator_args, **context_creator_kwargs) as context:
             conn = self.__context_processor(context, *context_processor_args, **context_processor_kwargs)
-            return pd.read_sql(sql_query, conn, *read_sql_args, **read_sql_kwargs)
+            return self.__read_sql_fn(sql_query, conn, *read_sql_args, **read_sql_kwargs)
+
+    @final
+    @property
+    def read_sql_fn(self) -> Callable[..., pd.DataFrame]:
+        return self.__read_sql_fn
 
     @final
     @property
