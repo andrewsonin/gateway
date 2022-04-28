@@ -2,9 +2,10 @@ from itertools import chain, repeat
 from typing import Optional, Union, Dict, List, Tuple, Iterator, Iterable
 
 import pandas as pd
-import pandera as pa
+from pandera import DataFrameSchema
 from typing_extensions import final
 
+from pandakeeper.errors import check_type_compatibility
 from pandakeeper.node import Node
 from pandakeeper.validators import AnyDataFrame
 
@@ -15,50 +16,83 @@ __all__ = (
 
 
 class NodeConnection:
+    """Class that encapsulates a connection to a parent Node."""
     __slots__ = ('__node', '__input_validator')
 
-    def __init__(self, node: Node, input_validator: pa.DataFrameSchema = AnyDataFrame) -> None:
+    def __init__(self, node: Node, input_validator: DataFrameSchema = AnyDataFrame) -> None:
+        """
+        Class that encapsulates a connection to a parent Node.
+
+        Args:
+            node:             parent Node to connect to.
+            input_validator:  DataFrameSchema that validates the data coming from the parent Node.
+        """
+        check_type_compatibility(node, Node)
+        check_type_compatibility(input_validator, DataFrameSchema)
         self.__node = node
         self.__input_validator = input_validator
 
     @final
     @property
     def node(self) -> Node:
+        """Parent Node."""
         return self.__node
 
     @final
     @property
-    def input_validator(self) -> pa.DataFrameSchema:
+    def input_validator(self) -> DataFrameSchema:
+        """Input validator."""
         return self.__input_validator
 
     @final
     def extract_data(self) -> pd.DataFrame:
+        """Extracts and validates data from the parent Node."""
         data = self.__node.extract_data()
         return self.__input_validator.validate(data)
 
 
 class DataProcessor(Node):
+    """
+    Abstract class that defines an interface common to all data processors,
+    i.e. Nodes that can receive data from other Nodes through NodeConnection instances.
+    """
     __slots__ = ('__positional_node_connections', '__named_node_connections')
 
-    def __init__(self, *, already_cached: bool, output_validator: pa.DataFrameSchema = AnyDataFrame):
-        super().__init__(already_cached=already_cached, output_validator=output_validator)
+    def __init__(self, output_validator: DataFrameSchema = AnyDataFrame):
+        """
+        Abstract class that defines an interface common to all data processors,
+        i.e. Nodes that can receive data from other Nodes through NodeConnection instances.
+
+        Args:
+            output_validator: DataFrameSchema that validates the data coming from the 'extract_data' method.
+        """
+        super().__init__(output_validator)
         self.__positional_node_connections: List[NodeConnection] = []
         self.__named_node_connections: Dict[str, NodeConnection] = {}
 
     @final
     @property
     def positional_node_connections(self) -> List[NodeConnection]:
+        """Returns positional NodeConnections."""
         return self.__positional_node_connections.copy()
 
     @final
     @property
     def named_node_connections(self) -> Dict[str, NodeConnection]:
+        """Returns named NodeConnections."""
         return self.__named_node_connections.copy()
 
     @final
-    def __connect_parental_node_body(self,
-                                     node_connection: NodeConnection,
-                                     keyword: Optional[str] = None) -> None:
+    def __connect_parent_node_body(self,
+                                   node_connection: NodeConnection,
+                                   keyword: Optional[str] = None) -> None:
+        """
+        Supplemental method used bt the 'connect_parental_node' and the 'connect_parental_nodes' methods.
+
+        Args:
+            node_connection:  Node to connect to or NodeConnection to add.
+            keyword:          Optional name of the NodeConnection.
+        """
         if keyword is None:
             self.__positional_node_connections.append(node_connection)
         else:
@@ -68,47 +102,82 @@ class DataProcessor(Node):
             named_node_connections[keyword] = node_connection
         self._add_edge_to_connection_graph(node_connection.node)
 
-    @final
-    def connect_parental_node(self,
-                              node_connection: Union[Node, NodeConnection],
-                              keyword: Optional[str] = None) -> None:
-        self.drop_cache()
-        self.__connect_parental_node_body(*_check_node_connection(node_connection, keyword))
+    @staticmethod
+    def __check_node_connection(node: Union[Node, NodeConnection],
+                                keyword: Optional[str],
+                                arg_position: int = 0) -> Tuple[NodeConnection, Optional[str]]:
+        """
+        Supplemental method used by the '__check_node_connections' and the 'connect_parental_node' methods.
+
+        Args:
+            node:          Node to connect to or NodeConnection to add.
+            keyword:       Optional name of the NodeConnection.
+            arg_position:  Argument position. See the context of the 'connect_parental_nodes' method.
+
+        Returns:
+            (NodeConnection, input keyword)
+        """
+        if isinstance(node, Node):
+            return NodeConnection(node), keyword
+        elif isinstance(node, NodeConnection):
+            return node, keyword
+        if keyword is None:
+            err_msg = f"Positional argument in position {arg_position} has incompatible type: {type(node)}"
+        else:
+            err_msg = f"Argument '{keyword}' has incompatible type: {type(node)}"
+        raise TypeError(err_msg)
+
+    @staticmethod
+    def __check_node_connections(nodes: Iterable[Tuple[Optional[str], Union[Node, NodeConnection]]]) -> Iterator[
+        Tuple[NodeConnection, Optional[str]]
+    ]:
+        """
+        Supplemental method used by the 'connect_parental_nodes' method.
+
+        Args:
+            nodes:  Iterable of Nodes to connect to or NodeConnections to add.
+
+        Returns:
+            Iterator of pairs (NodeConnection, input keyword)
+        """
+        for i, (keyword, node) in enumerate(nodes):
+            yield DataProcessor.__check_node_connection(node, keyword, i)
 
     @final
-    def connect_parental_nodes(self,
-                               *positional_nodes: Union[Node, NodeConnection],
-                               **keyword_nodes: Union[Node, NodeConnection]) -> None:
+    def connect_parent_node(self,
+                            node_connection: Union[Node, NodeConnection],
+                            keyword: Optional[str] = None) -> None:
+        """
+        Connects parent Node.
+
+        Args:
+            node_connection:  Node to connect to or NodeConnection to add.
+            keyword:          Optional name of the NodeConnection.
+        """
+        args = DataProcessor.__check_node_connection(node_connection, keyword)
+        self.drop_cache()
+        self.__connect_parent_node_body(*args)
+
+    @final
+    def connect_parent_nodes(self,
+                             *positional_nodes: Union[Node, NodeConnection],
+                             **keyword_nodes: Union[Node, NodeConnection]) -> None:
+        """
+        Connects multiple parent Nodes.
+
+        Args:
+            positional_nodes:  positional Nodes to connect or NodeConnections to add.
+            keyword_nodes:     named Nodes to connect or NodeConnections to add.
+        """
         if positional_nodes or keyword_nodes:
-            self.drop_cache()
             nodes = tuple(
-                _check_node_connections(
+                DataProcessor.__check_node_connections(
                     chain(
                         zip(repeat(None), positional_nodes),
                         keyword_nodes.items()
                     )
                 )
             )
+            self.drop_cache()
             for args in nodes:
-                self.__connect_parental_node_body(*args)
-
-
-def _check_node_connection(node: Union[Node, NodeConnection],
-                           keyword: Optional[str],
-                           arg_position: int = 0) -> Tuple[NodeConnection, Optional[str]]:
-    if isinstance(node, Node):
-        return NodeConnection(node), keyword
-    elif isinstance(node, NodeConnection):
-        return node, keyword
-    if keyword is None:
-        err_msg = f"Positional argument in position {arg_position} has incompatible type: {type(node)}"
-    else:
-        err_msg = f"Argument '{keyword}' has incompatible type: {type(node)}"
-    raise TypeError(err_msg)
-
-
-def _check_node_connections(nodes: Iterable[Tuple[Optional[str], Union[Node, NodeConnection]]]) -> Iterator[
-    Tuple[NodeConnection, Optional[str]]
-]:
-    for i, (keyword, node) in enumerate(nodes):
-        yield _check_node_connection(node, keyword, i)
+                self.__connect_parent_node_body(*args)
