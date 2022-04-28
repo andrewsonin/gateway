@@ -1,7 +1,8 @@
+from pathlib import Path
+from typing import Tuple
+
 from setuptools import setup, find_packages
 from toml import load as load_toml
-from typing import Tuple
-from pathlib import Path
 
 
 def extract_author_and_email(pyproject_entry: str) -> Tuple[str, str]:
@@ -29,7 +30,7 @@ setup(
     long_description=README,
     author=author,
     author_email=author_email,
-    url='https://github.com/andrewsonin/pandakeeper',
+    url=pyproject_info['repository'],
     license=LICENCE,
     packages=find_packages(exclude=('tests', 'docs'))
 )
