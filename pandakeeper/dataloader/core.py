@@ -128,6 +128,7 @@ class DataFrameAdapter(StaticDataLoader):
             copy:              whether to copy input DataFrame.
         """
         check_type_compatibility(df, DataFrame)
+        check_type_compatibility(copy, bool)
         if copy:
             df = df.copy()
         super().__init__(lambda: df)

@@ -117,13 +117,13 @@ class Node(metaclass=ABCMeta):
     @final
     def make_node_cached(self) -> None:
         """Caches self and all parent Nodes with True use_cached property."""
-        if self.already_cached:
+        if self.__already_cached:
             return
         if not self._is_parental_graph_topo_sorted:
             node_id = self.__gateway_id
             raise LoopedGraphError(f"Parental graph of Node (ID={node_id}) has loops")
         for parent in Node.__parental_graph[self]:
-            if parent.use_cached and not parent.already_cached:
+            if parent.use_cached and not parent.__already_cached:
                 parent.__make_node_cached()
         if not self.use_cached:
             node_id = self.__gateway_id
@@ -134,8 +134,9 @@ class Node(metaclass=ABCMeta):
     @final
     def drop_cache(self) -> None:
         """Drops the Node's cache, dropping it in all child Nodes as well."""
-        self._clear_cache_storage()
-        self.__already_cached = False
+        if self.__already_cached:
+            self._clear_cache_storage()
+            self.__already_cached = False
 
         children_graph = Node.__children_graph
         visited_nodes = {self}
@@ -146,8 +147,9 @@ class Node(metaclass=ABCMeta):
                 if cur_node in visited_nodes:
                     node_id = cur_node.__gateway_id
                     raise LoopedGraphError(f"Node with ID={node_id} is child of itself")
-                cur_node._clear_cache_storage()
-                cur_node.__already_cached = False
+                if cur_node.__already_cached:
+                    cur_node._clear_cache_storage()
+                    cur_node.__already_cached = False
                 visited_nodes.add(cur_node)
                 nodes_to_visit |= children_graph[cur_node]
         except KeyError:

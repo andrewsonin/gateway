@@ -140,8 +140,9 @@ class DataProcessor(Node):
         Returns:
             Iterator of pairs (NodeConnection, input keyword)
         """
+        check_node_connection = DataProcessor.__check_node_connection
         for i, (keyword, node) in enumerate(nodes):
-            yield DataProcessor.__check_node_connection(node, keyword, i)
+            yield check_node_connection(node, keyword, i)
 
     @final
     def connect_parent_node(self,
