@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "pandakeeper"
-version = "0.0.4"
+version = "0.0.5"
 description = "Python library designed to simplify the validation of dataset manipulations."
 repository = "https://github.com/andrewsonin/pandakeeper"
 homepage = "https://github.com/andrewsonin/pandakeeper"

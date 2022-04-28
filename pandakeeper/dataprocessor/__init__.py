@@ -1,1 +1,1 @@
-from .core import *
+from pandakeeper.dataprocessor.core import *

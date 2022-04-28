@@ -1,1 +1,1 @@
-from .core import *
+from pandakeeper.dataloader.sql.core import *
