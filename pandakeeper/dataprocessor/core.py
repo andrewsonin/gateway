@@ -107,8 +107,8 @@ def _check_node_connection(node: Union[Node, NodeConnection],
     raise TypeError(err_msg)
 
 
-def _check_node_connections(
-        nodes: Iterable[Tuple[Optional[str], Union[Node, NodeConnection]]]
-) -> Iterator[Tuple[NodeConnection, Optional[str]]]:
+def _check_node_connections(nodes: Iterable[Tuple[Optional[str], Union[Node, NodeConnection]]]) -> Iterator[
+    Tuple[NodeConnection, Optional[str]]
+]:
     for i, (keyword, node) in enumerate(nodes):
         yield _check_node_connection(node, keyword, i)

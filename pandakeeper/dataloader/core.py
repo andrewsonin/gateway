@@ -1,4 +1,4 @@
-from typing import Any, Optional, Callable
+from typing import Any, Optional, Callable, Tuple, Dict
 
 import pandas as pd
 import pandera as pa
@@ -11,7 +11,9 @@ from pandakeeper.validators import AnyDataFrame
 __all__ = (
     'DataLoader',
     'StaticDataLoader',
-    'PickleLoader'
+    'DataFrameAdapter',
+    'PickleLoader',
+    'ExcelLoader'
 )
 
 
@@ -31,6 +33,21 @@ class DataLoader(Node):
     @final
     def _load_default(self) -> pd.DataFrame:
         return self.__loader(*self.__loader_args, **self.__loader_kwargs)
+
+    @final
+    @property
+    def loader(self) -> Callable[..., pd.DataFrame]:
+        return self.__loader
+
+    @final
+    @property
+    def loader_args(self) -> Tuple[Any, ...]:
+        return self.__loader_args
+
+    @final
+    @property
+    def loader_kwargs(self) -> Dict[str, Any]:
+        return self.__loader_kwargs
 
 
 class StaticDataLoader(DataLoader):
@@ -61,8 +78,15 @@ class StaticDataLoader(DataLoader):
         return data
 
 
+class DataFrameAdapter(StaticDataLoader):
+    __slots__ = ()
+
+    def __init__(self, df: pd.DataFrame, *, output_validator: pa.DataFrameSchema = AnyDataFrame) -> None:
+        super().__init__(lambda: df, output_validator=output_validator)
+
+
 class PickleLoader(StaticDataLoader):
-    __slots__ = ('__filepath_or_buffer', '__compression')
+    __slots__ = ()
 
     def __init__(self,
                  filepath_or_buffer: PD_READ_PICKLE_ANNOTATION,
@@ -75,15 +99,13 @@ class PickleLoader(StaticDataLoader):
             compression,
             output_validator=output_validator
         )
-        self.__filepath_or_buffer = filepath_or_buffer
-        self.__compression = compression
 
-    @final
-    @property
-    def compression(self) -> Optional[str]:
-        return self.__compression
 
-    @final
-    @property
-    def filepath_or_buffer(self) -> PD_READ_PICKLE_ANNOTATION:
-        return self.__filepath_or_buffer
+class ExcelLoader(StaticDataLoader):
+    __slots__ = ()
+
+    def __init__(self,
+                 *loader_args: Any,
+                 output_validator: pa.DataFrameSchema,
+                 **loader_kwargs: Any) -> None:
+        super().__init__(pd.read_excel, *loader_args, **loader_kwargs, output_validator=output_validator)
