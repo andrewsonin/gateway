@@ -48,10 +48,10 @@ class SqlLoader(StaticDataLoader):
             sql_query: str,
             read_sql_args: Tuple[Any, ...],
             read_sql_kwargs: Mapping[str, Any],
-            context_creator_args: Tuple[Any, ...] = (),
-            context_creator_kwargs: Mapping[str, Any] = MappingProxyType({}),
-            context_processor_args: Tuple[Any, ...] = (),
-            context_processor_kwargs: Mapping[str, Any] = MappingProxyType({})) -> pd.DataFrame:
+            context_creator_args: Tuple[Any, ...],
+            context_creator_kwargs: Mapping[str, Any],
+            context_processor_args: Tuple[Any, ...],
+            context_processor_kwargs: Mapping[str, Any]) -> pd.DataFrame:
         with self.__sql_context_creator(*context_creator_args, **context_creator_kwargs) as context:
             conn = self.__context_processor(context, *context_processor_args, **context_processor_kwargs)
             return pd.read_sql(sql_query, conn, *read_sql_args, **read_sql_kwargs)
