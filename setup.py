@@ -22,9 +22,10 @@ with open(PROJECT_DIR / 'README.md', 'r') as f:
 
 pyproject_info = load_toml(PROJECT_DIR / 'pyproject.toml')['tool']['poetry']
 author, author_email = extract_author_and_email(pyproject_info['authors'][0])
+project_name = pyproject_info['name']
 
 setup(
-    name=pyproject_info['name'],
+    name=project_name,
     version=pyproject_info['version'],
     description=pyproject_info['description'],
     long_description=README,
@@ -32,5 +33,6 @@ setup(
     author_email=author_email,
     url=pyproject_info['repository'],
     license=LICENCE,
-    packages=find_packages(exclude=('tests', 'docs'))
+    packages=find_packages(exclude=('tests', 'docs')),
+    package_data={project_name: ['py.typed']}
 )
