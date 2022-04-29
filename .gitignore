@@ -127,3 +127,5 @@ docs/source/CONTRIBUTING.md
 # Poetry lock-file
 poetry.lock
 
+# macOS Finder files
+.DS_Store

@@ -80,11 +80,9 @@ class StaticDataLoader(DataLoader):
     """DataLoader base class for static data sources."""
     __slots__ = ()
 
-    @final
     def _dump_to_cache(self, data: DataFrame) -> None:
         warn("'_dump_to_cache' does nothing for StaticDataLoader instances", RuntimeWarning)
 
-    @final
     def _load_cached(self) -> DataFrame:
         warn(
             "'_load_cached' should not be called for StaticDataLoader instances. Switch to '_load_non_cached'",
@@ -96,11 +94,9 @@ class StaticDataLoader(DataLoader):
     def _load_non_cached(self) -> DataFrame:
         return self._load_default()
 
-    @final
     def _clear_cache_storage(self) -> None:
         warn("'_clear_cache_storage' does nothing for StaticDataLoader instances", RuntimeWarning)
 
-    @final
     @property
     def use_cached(self) -> bool:
         return False
