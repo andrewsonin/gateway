@@ -164,7 +164,8 @@ class Node(metaclass=ABCMeta):
             Extracted DataFrame.
         """
         if self.already_cached:
-            return self._load_cached()
+            data = self._load_cached()
+            return self.__output_validator.validate(data)
         if not self._is_parental_graph_topo_sorted:
             node_id = self.__gateway_id
             raise LoopedGraphError(f"Parental graph of Node (ID={node_id}) has loops")

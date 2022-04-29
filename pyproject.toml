@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "pandakeeper"
-version = "0.0.11"
+version = "0.0.12"
 description = "Python library designed to simplify the validation of dataset manipulations."
 repository = "https://github.com/andrewsonin/pandakeeper"
 homepage = "https://github.com/andrewsonin/pandakeeper"
@@ -12,19 +12,19 @@ python = "^3.7"
 numpy = ">=1.20,<1.21"
 pandas = ">=1.1,<1.2"
 pandera = "^0.9"
-typing-extensions = "^4.2"
-varname = "^0.8.3"
+typing-extensions = "^4"
+varname = "^0.8"
 
 [tool.poetry.dev-dependencies]
 ipython = "^7"
-jupyter = "^1.0.0"
-jupyterlab = "^3.3.4"
-mypy = "^0.942"
-toml = "^0.10.2"
-types-setuptools = "^57.4.14"
-types-toml = "^0.10.5"
-pandas-stubs = "^1.2.0"
+jupyter = "^1"
+jupyterlab = "^3"
+mypy = ">=0.950"
+toml = "^0.10"
+types-setuptools = "^57"
+types-toml = "^0.10"
+pandas-stubs = "^1"
 
 [build-system]
-requires = ["poetry-core>=1.0.0", "setuptools>=62", "toml>=0.10.2,<0.11"]
+requires = ["poetry-core>=1.0.0", "setuptools>=62", "toml>=0.10,<0.11"]
 build-backend = "poetry.core.masonry.api"

@@ -3,18 +3,18 @@ from typing import Type, Optional, Any
 from varname import argname
 
 __all__ = (
-    'GatewayError',
+    'PandakeeperError',
     'LoopedGraphError',
     'check_type_compatibility'
 )
 
 
-class GatewayError(Exception):
+class PandakeeperError(Exception):
     """Base class for library-specific exceptions."""
     __slots__ = ()
 
 
-class LoopedGraphError(GatewayError):
+class LoopedGraphError(PandakeeperError):
     """Throws when the logic of the algorithms can be violated by the presence of loops in graphs."""
     __slots__ = ()
 
