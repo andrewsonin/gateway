@@ -1,6 +1,7 @@
 from collections.abc import Mapping as _Mapping, Callable as _Callable
 from contextlib import ExitStack
-from typing import Callable, Any, Tuple, Mapping, Dict
+from types import MappingProxyType
+from typing import Callable, Any, Tuple, Mapping
 
 import pandas as pd
 import pandera as pa
@@ -111,9 +112,9 @@ class SqlLoader(StaticDataLoader):
 
     @final
     @property
-    def context_creator_kwargs(self) -> Dict[str, Any]:
+    def context_creator_kwargs(self) -> MappingProxyType[str, Any]:
         """Keyword arguments for 'sql_context_creator'."""
-        return dict(self.loader_args[2])
+        return MappingProxyType(self.loader_args[2])
 
     @final
     @property
@@ -123,6 +124,6 @@ class SqlLoader(StaticDataLoader):
 
     @final
     @property
-    def read_sql_kwargs(self) -> Dict[str, Any]:
+    def read_sql_kwargs(self) -> MappingProxyType[str, Any]:
         """Keyword arguments for 'read_sql_fn'."""
-        return dict(self.loader_args[4])
+        return MappingProxyType(self.loader_args[4])

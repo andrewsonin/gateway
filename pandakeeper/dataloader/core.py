@@ -1,5 +1,6 @@
 from collections.abc import Callable as _Callable
-from typing import Any, Optional, Callable, Tuple, Dict
+from types import MappingProxyType
+from typing import Any, Optional, Callable, Tuple
 from warnings import warn
 
 import pandera as pa
@@ -66,14 +67,14 @@ class DataLoader(Node):
     @final
     @property
     def loader_args(self) -> Tuple[Any, ...]:
-        """Loader function positional arguments."""
+        """Positional arguments of the loader function."""
         return self.__loader_args
 
     @final
     @property
-    def loader_kwargs(self) -> Dict[str, Any]:
-        """Loader function keyword arguments."""
-        return self.__loader_kwargs.copy()
+    def loader_kwargs(self) -> MappingProxyType[str, Any]:
+        """Keyword arguments of the loader function."""
+        return MappingProxyType(self.__loader_kwargs)
 
 
 class StaticDataLoader(DataLoader):
