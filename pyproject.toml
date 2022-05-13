@@ -14,7 +14,7 @@ pandas = "^1"
 pandera = "^0.9"
 typing-extensions = "^4"
 varname = "^0.8"
-varutils = "^0.0.4"
+varutils = "^0.0.5"
 
 [tool.poetry.dev-dependencies]
 ipython = "^7"
