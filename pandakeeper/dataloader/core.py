@@ -6,11 +6,11 @@ from warnings import warn
 import pandera as pa
 from pandas import DataFrame, read_pickle, read_excel, read_csv
 from typing_extensions import final
+from varutils.plugs.functional import pass_through_one
+from varutils.typing import check_type_compatibility
 
-from pandakeeper.errors import check_type_compatibility
 from pandakeeper.node import Node
 from pandakeeper.typing import PD_READ_PICKLE_ANNOTATION
-from pandakeeper.utils import pass_through_one
 from pandakeeper.validators import AnyDataFrame
 
 __all__ = (

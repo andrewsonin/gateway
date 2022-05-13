@@ -6,8 +6,9 @@ from warnings import warn
 import pandas as pd
 from pandera import DataFrameSchema
 from typing_extensions import final
+from varutils.typing import check_type_compatibility
 
-from pandakeeper.errors import LoopedGraphError, check_type_compatibility
+from pandakeeper.errors import LoopedGraphError
 
 __all__ = ('Node',)
 

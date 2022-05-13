@@ -4,8 +4,8 @@ from typing import Optional, Union, Dict, List, Tuple, Iterator, Iterable
 import pandas as pd
 from pandera import DataFrameSchema
 from typing_extensions import final
+from varutils.typing import check_type_compatibility
 
-from pandakeeper.errors import check_type_compatibility
 from pandakeeper.node import Node
 from pandakeeper.validators import AnyDataFrame
 

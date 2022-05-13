@@ -6,10 +6,10 @@ from typing import Callable, Any, Tuple, Mapping
 import pandas as pd
 import pandera as pa
 from typing_extensions import final
+from varutils.plugs.constants import empty_mapping_proxy
+from varutils.typing import check_type_compatibility
 
 from pandakeeper.dataloader.core import StaticDataLoader
-from pandakeeper.errors import check_type_compatibility
-from pandakeeper.utils import empty_mapping_proxy
 
 __all__ = ('SqlLoader',)
 

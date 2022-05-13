@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "pandakeeper"
-version = "0.0.18"
+version = "0.0.19"
 description = "Python library designed to simplify the validation of dataset manipulations."
 repository = "https://github.com/andrewsonin/pandakeeper"
 homepage = "https://github.com/andrewsonin/pandakeeper"
@@ -9,11 +9,11 @@ license = "Apache License 2.0"
 
 [tool.poetry.dependencies]
 python = "^3.7"
-numpy = "^1"
 pandas = "^1"
 pandera = "^0.9"
 typing-extensions = "^4"
 varname = "^0.8"
+varutils = "^0.0.4"
 
 [tool.poetry.dev-dependencies]
 ipython = "^7"
