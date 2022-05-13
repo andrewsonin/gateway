@@ -1,6 +1,6 @@
 from collections.abc import Callable as _Callable
 from types import MappingProxyType
-from typing import Any, Optional, Callable, Tuple
+from typing import Any, Optional, Mapping, Callable, Tuple
 from warnings import warn
 
 import pandera as pa
@@ -10,6 +10,7 @@ from typing_extensions import final
 from pandakeeper.errors import check_type_compatibility
 from pandakeeper.node import Node
 from pandakeeper.typing import PD_READ_PICKLE_ANNOTATION
+from pandakeeper.utils import pass_through_one
 from pandakeeper.validators import AnyDataFrame
 
 __all__ = (
@@ -60,19 +61,19 @@ class DataLoader(Node):
 
     @final
     @property
-    def loader(self) -> Callable[..., DataFrame]:
+    def _loader(self) -> Callable[..., DataFrame]:
         """Loader function."""
         return self.__loader
 
     @final
     @property
-    def loader_args(self) -> Tuple[Any, ...]:
+    def _loader_args(self) -> Tuple[Any, ...]:
         """Positional arguments of the loader function."""
         return self.__loader_args
 
     @final
     @property
-    def loader_kwargs(self) -> MappingProxyType[str, Any]:
+    def _loader_kwargs(self) -> Mapping[str, Any]:
         """Keyword arguments of the loader function."""
         return MappingProxyType(self.__loader_kwargs)
 
@@ -109,7 +110,7 @@ class StaticDataLoader(DataLoader):
 
 class DataFrameAdapter(StaticDataLoader):
     """DataLoader adapter for existing DataFrames."""
-    __slots__ = ()
+    __slots__ = ('__copy',)
 
     def __init__(self,
                  df: DataFrame,
@@ -128,8 +129,19 @@ class DataFrameAdapter(StaticDataLoader):
         check_type_compatibility(copy, bool)
         if copy:
             df = df.copy()
-        super().__init__(lambda: df)
+        super().__init__(pass_through_one, df)
         self.set_output_validator(output_validator)
+        self.__copy = copy
+
+    @final
+    @property
+    def copy(self) -> bool:
+        return self.__copy
+
+    @final
+    @property
+    def dataframe(self) -> DataFrame:
+        return self._loader_args[0]
 
 
 class PickleLoader(StaticDataLoader):
@@ -152,12 +164,23 @@ class PickleLoader(StaticDataLoader):
         super().__init__(read_pickle, filepath_or_buffer, compression)
         self.set_output_validator(output_validator)
 
+    @final
+    @property
+    def filepath_or_buffer(self) -> PD_READ_PICKLE_ANNOTATION:
+        return self._loader_args[0]
+
+    @final
+    @property
+    def compression(self) -> Optional[str]:
+        return self._loader_args[1]
+
 
 class ExcelLoader(StaticDataLoader):
     """DataLoader that loads Excel files."""
     __slots__ = ()
 
     def __init__(self,
+                 io,
                  *loader_args: Any,
                  output_validator: pa.DataFrameSchema = AnyDataFrame,
                  **loader_kwargs: Any) -> None:
@@ -165,12 +188,18 @@ class ExcelLoader(StaticDataLoader):
         DataLoader that loads Excel files.
 
         Args:
+            io:                pandas.read_excel first argument.
             *loader_args:      pandas.read_excel positional arguments.
             output_validator:  output validator.
             **loader_kwargs:   pandas.read_excel keyword arguments.
         """
-        super().__init__(read_excel, *loader_args, **loader_kwargs)
+        super().__init__(read_excel, io, *loader_args, **loader_kwargs)
         self.set_output_validator(output_validator)
+
+    @final
+    @property
+    def io(self):
+        return self._loader_args[0]
 
 
 class CsvLoader(StaticDataLoader):
@@ -178,6 +207,7 @@ class CsvLoader(StaticDataLoader):
     __slots__ = ()
 
     def __init__(self,
+                 filepath_or_buffer,
                  *loader_args: Any,
                  output_validator: pa.DataFrameSchema = AnyDataFrame,
                  **loader_kwargs: Any) -> None:
@@ -185,9 +215,15 @@ class CsvLoader(StaticDataLoader):
         DataLoader that loads csv-files.
 
         Args:
-            *loader_args:      pandas.read_csv positional arguments.
-            output_validator:  output validator.
-            **loader_kwargs:   pandas.read_csv keyword arguments.
+            filepath_or_buffer:  pandas.read_csv first argument.
+            *loader_args:        pandas.read_csv positional arguments.
+            output_validator:    output validator.
+            **loader_kwargs:     pandas.read_csv keyword arguments.
         """
-        super().__init__(read_csv, *loader_args, **loader_kwargs)
+        super().__init__(read_csv, filepath_or_buffer, *loader_args, **loader_kwargs)
         self.set_output_validator(output_validator)
+
+    @final
+    @property
+    def filepath_or_buffer(self):
+        return self._loader_args[0]

@@ -88,42 +88,42 @@ class SqlLoader(StaticDataLoader):
 
     @final
     @property
-    def read_sql_fn(self) -> Callable[..., pd.DataFrame]:
+    def _read_sql_fn(self) -> Callable[..., pd.DataFrame]:
         """Function that creates pandas.DataFrame from the result of SQL-query."""
         return self.__read_sql_fn
 
     @final
     @property
-    def context_creator(self) -> Callable[..., Any]:
+    def _context_creator(self) -> Callable[..., Any]:
         """Callable that create SQL context and return the DB-connection."""
         return self.__context_creator
 
     @final
     @property
+    def _context_creator_args(self) -> Tuple[Any, ...]:
+        """Positional arguments for 'sql_context_creator'."""
+        return self._loader_args[1]
+
+    @final
+    @property
+    def _context_creator_kwargs(self) -> Mapping[str, Any]:
+        """Keyword arguments for 'sql_context_creator'."""
+        return MappingProxyType(self._loader_args[2])
+
+    @final
+    @property
+    def _read_sql_args(self) -> Tuple[Any, ...]:
+        """Positional arguments for 'read_sql_fn'."""
+        return self._loader_args[3]
+
+    @final
+    @property
+    def _read_sql_kwargs(self) -> Mapping[str, Any]:
+        """Keyword arguments for 'read_sql_fn'."""
+        return MappingProxyType(self._loader_args[4])
+
+    @final
+    @property
     def sql_query(self) -> str:
         """SQL-query to run."""
-        return self.loader_args[0]
-
-    @final
-    @property
-    def context_creator_args(self) -> Tuple[Any, ...]:
-        """Positional arguments for 'sql_context_creator'."""
-        return self.loader_args[1]
-
-    @final
-    @property
-    def context_creator_kwargs(self) -> MappingProxyType[str, Any]:
-        """Keyword arguments for 'sql_context_creator'."""
-        return MappingProxyType(self.loader_args[2])
-
-    @final
-    @property
-    def read_sql_args(self) -> Tuple[Any, ...]:
-        """Positional arguments for 'read_sql_fn'."""
-        return self.loader_args[3]
-
-    @final
-    @property
-    def read_sql_kwargs(self) -> MappingProxyType[str, Any]:
-        """Keyword arguments for 'read_sql_fn'."""
-        return MappingProxyType(self.loader_args[4])
+        return self._loader_args[0]

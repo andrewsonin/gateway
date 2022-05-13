@@ -1,5 +1,4 @@
 from itertools import chain, repeat
-from types import MappingProxyType
 from typing import Optional, Union, Dict, List, Tuple, Iterator, Iterable
 
 import pandas as pd
@@ -73,15 +72,15 @@ class DataProcessor(Node):
 
     @final
     @property
-    def positional_node_connections(self) -> Tuple[NodeConnection, ...]:
+    def positional_node_connections(self) -> List[NodeConnection]:
         """Returns positional NodeConnections."""
-        return tuple(self.__positional_node_connections)
+        return self.__positional_node_connections.copy()
 
     @final
     @property
-    def named_node_connections(self) -> MappingProxyType[str, NodeConnection]:
+    def named_node_connections(self) -> Dict[str, NodeConnection]:
         """Returns named NodeConnections."""
-        return MappingProxyType(self.__named_node_connections)
+        return self.__named_node_connections.copy()
 
     @final
     def __connect_parent_node_body(self,
