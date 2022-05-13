@@ -1,10 +1,11 @@
 [tool.poetry]
 name = "pandakeeper"
-version = "0.0.19"
+version = "0.0.20"
 description = "Python library designed to simplify the validation of dataset manipulations."
 repository = "https://github.com/andrewsonin/pandakeeper"
 homepage = "https://github.com/andrewsonin/pandakeeper"
 authors = ["Andrew Sonin <sonin.cel@yandex.ru>"]
+readme = "README.md"
 license = "Apache License 2.0"
 
 [tool.poetry.dependencies]
