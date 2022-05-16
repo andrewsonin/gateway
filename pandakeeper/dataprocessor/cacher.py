@@ -6,6 +6,7 @@ from pandakeeper.dataprocessor import DataProcessor
 __all__ = (
     'AbstractDataCacher',
     'RuntimeCacher',
+    'SingleNodeRuntimeCacher',
 )
 
 
@@ -20,7 +21,7 @@ class AbstractDataCacher(DataProcessor):
 
 
 class RuntimeCacher(AbstractDataCacher):
-    """DataCacher for caching single Node output."""
+    """DataCacher for caching Node outputs to RAM."""
     __slots__ = ('__dataframe',)
 
     @final
@@ -38,7 +39,11 @@ class RuntimeCacher(AbstractDataCacher):
             return df
         raise ValueError("Cannot load non-cached data")
 
-    @final
+
+class SingleNodeRuntimeCacher(RuntimeCacher):
+    """RuntimeCacher for caching single Node output."""
+    __slots__ = ()
+
     def _load_non_cached(self) -> DataFrame:
         pnc = self.positional_node_connections
         nnc = self.named_node_connections
@@ -54,6 +59,5 @@ class RuntimeCacher(AbstractDataCacher):
             node_connection = next(iter(nnc.values()))
         return node_connection.extract_data()
 
-    @final
     def transform_data(self, data: DataFrame) -> DataFrame:
         return data
