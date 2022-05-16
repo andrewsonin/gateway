@@ -1,3 +1,5 @@
+from typing import Optional
+
 from pandas import DataFrame
 from typing_extensions import final
 
@@ -23,6 +25,7 @@ class AbstractDataCacher(DataProcessor):
 class RuntimeCacher(AbstractDataCacher):
     """DataCacher for caching Node outputs to RAM."""
     __slots__ = ('__dataframe',)
+    __dataframe: Optional[DataFrame]
 
     @final
     def _dump_to_cache(self, data: DataFrame) -> None:
