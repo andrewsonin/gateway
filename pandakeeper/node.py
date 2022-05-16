@@ -164,7 +164,7 @@ class Node(metaclass=ABCMeta):
         Returns:
             Extracted DataFrame.
         """
-        if self.already_cached:
+        if self.__already_cached:
             data = self._load_cached()
             return self.__output_validator.validate(data)
         if not self._is_parental_graph_topo_sorted:
