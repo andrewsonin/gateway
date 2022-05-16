@@ -16,16 +16,16 @@ __all__ = (
 
 
 class NodeConnection:
-    """Class that encapsulates a connection to a parent Node."""
+    """Class that encapsulates a connection to an input Node."""
     __slots__ = ('__node', '__input_validator')
 
     def __init__(self, node: Node, input_validator: DataFrameSchema = AnyDataFrame) -> None:
         """
-        Class that encapsulates a connection to a parent Node.
+        Class that encapsulates a connection to an input Node.
 
         Args:
-            node:             parent Node to connect to.
-            input_validator:  DataFrameSchema that validates the data coming from the parent Node.
+            node:             input Node to connect to.
+            input_validator:  DataFrameSchema that validates the data coming from the input Node.
         """
         check_type_compatibility(node, Node)
         check_type_compatibility(input_validator, DataFrameSchema)
@@ -35,7 +35,7 @@ class NodeConnection:
     @final
     @property
     def node(self) -> Node:
-        """Parent Node."""
+        """Input Node."""
         return self.__node
 
     @final
@@ -46,7 +46,7 @@ class NodeConnection:
 
     @final
     def extract_data(self) -> pd.DataFrame:
-        """Extracts and validates data from the parent Node."""
+        """Extracts and validates data from the input Node."""
         data = self.__node.extract_data()
         return self.__input_validator.validate(data)
 
@@ -72,22 +72,22 @@ class DataProcessor(Node):
 
     @final
     @property
-    def positional_node_connections(self) -> List[NodeConnection]:
-        """Returns positional NodeConnections."""
+    def positional_input_nodes(self) -> List[NodeConnection]:
+        """Returns positional input NodeConnections."""
         return self.__positional_node_connections.copy()
 
     @final
     @property
-    def named_node_connections(self) -> Dict[str, NodeConnection]:
-        """Returns named NodeConnections."""
+    def named_input_nodes(self) -> Dict[str, NodeConnection]:
+        """Returns named input NodeConnections."""
         return self.__named_node_connections.copy()
 
     @final
-    def __connect_parent_node_body(self,
-                                   node_connection: NodeConnection,
-                                   keyword: Optional[str] = None) -> None:
+    def __connect_input_node_body(self,
+                                  node_connection: NodeConnection,
+                                  keyword: Optional[str] = None) -> None:
         """
-        Supplemental method used bt the 'connect_parental_node' and the 'connect_parental_nodes' methods.
+        Supplemental method used bt the 'connect_input_node' and the 'connect_input_nodes' methods.
 
         Args:
             node_connection:  Node to connect to or NodeConnection to add.
@@ -107,12 +107,12 @@ class DataProcessor(Node):
                                 keyword: Optional[str],
                                 arg_position: int = 0) -> Tuple[NodeConnection, Optional[str]]:
         """
-        Supplemental method used by the '__check_node_connections' and the 'connect_parental_node' methods.
+        Supplemental method used by the '__check_node_connections' and the 'connect_input_node' methods.
 
         Args:
             node:          Node to connect to or NodeConnection to add.
             keyword:       Optional name of the NodeConnection.
-            arg_position:  Argument position. See the context of the 'connect_parental_nodes' method.
+            arg_position:  Argument position. See the context of the 'connect_input_nodes' method.
 
         Returns:
             (NodeConnection, input keyword)
@@ -132,7 +132,7 @@ class DataProcessor(Node):
         Tuple[NodeConnection, Optional[str]]
     ]:
         """
-        Supplemental method used by the 'connect_parental_nodes' method.
+        Supplemental method used by the 'connect_input_nodes' method.
 
         Args:
             nodes:  Iterable of Nodes to connect to or NodeConnections to add.
@@ -145,11 +145,11 @@ class DataProcessor(Node):
             yield check_node_connection(node, keyword, i)
 
     @final
-    def connect_parent_node(self,
-                            node_connection: Union[Node, NodeConnection],
-                            keyword: Optional[str] = None) -> None:
+    def connect_input_node(self,
+                           node_connection: Union[Node, NodeConnection],
+                           keyword: Optional[str] = None) -> None:
         """
-        Connects parent Node.
+        Connects input Node.
 
         Args:
             node_connection:  Node to connect to or NodeConnection to add.
@@ -157,14 +157,14 @@ class DataProcessor(Node):
         """
         args = DataProcessor.__check_node_connection(node_connection, keyword)
         self.drop_cache()
-        self.__connect_parent_node_body(*args)
+        self.__connect_input_node_body(*args)
 
     @final
-    def connect_parent_nodes(self,
-                             *positional_nodes: Union[Node, NodeConnection],
-                             **keyword_nodes: Union[Node, NodeConnection]) -> None:
+    def connect_input_nodes(self,
+                            *positional_nodes: Union[Node, NodeConnection],
+                            **keyword_nodes: Union[Node, NodeConnection]) -> None:
         """
-        Connects multiple parent Nodes.
+        Connects multiple input Nodes.
 
         Args:
             positional_nodes:  positional Nodes to connect or NodeConnections to add.
@@ -181,4 +181,4 @@ class DataProcessor(Node):
             )
             self.drop_cache()
             for args in nodes:
-                self.__connect_parent_node_body(*args)
+                self.__connect_input_node_body(*args)

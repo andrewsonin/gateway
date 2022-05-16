@@ -48,8 +48,8 @@ class SingleInputRuntimeCacher(AbstractRuntimeCacher):
     __slots__ = ()
 
     def _load_non_cached(self) -> DataFrame:
-        pnc = self.positional_node_connections
-        nnc = self.named_node_connections
+        pnc = self.positional_input_nodes
+        nnc = self.named_input_nodes
         total_dfs = len(nnc) + len(pnc)
         if total_dfs != 1:
             raise ValueError(
