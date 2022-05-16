@@ -8,7 +8,7 @@ from pandakeeper.dataprocessor import DataProcessor
 __all__ = (
     'AbstractDataCacher',
     'AbstractRuntimeCacher',
-    'SingleOutputRuntimeCacher',
+    'SingleInputRuntimeCacher',
 )
 
 
@@ -43,8 +43,8 @@ class AbstractRuntimeCacher(AbstractDataCacher):
         raise ValueError("Cannot load non-cached data")
 
 
-class SingleOutputRuntimeCacher(AbstractRuntimeCacher):
-    """RuntimeCacher for caching single Node output."""
+class SingleInputRuntimeCacher(AbstractRuntimeCacher):
+    """RuntimeCacher for caching single input Node."""
     __slots__ = ()
 
     def _load_non_cached(self) -> DataFrame:
