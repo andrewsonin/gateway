@@ -6,14 +6,14 @@ from typing_extensions import final
 from pandakeeper.dataprocessor import DataProcessor
 
 __all__ = (
-    'AbstractDataCacher',
-    'AbstractRuntimeCacher',
+    'DataCacher',
+    'RuntimeCacher',
     'SingleInputRuntimeCacher',
 )
 
 
-class AbstractDataCacher(DataProcessor):
-    """DataProcessor that caches input data."""
+class DataCacher(DataProcessor):
+    """Abstract DataProcessor that caches input data."""
     __slots__ = ()
 
     @final
@@ -22,8 +22,8 @@ class AbstractDataCacher(DataProcessor):
         return True
 
 
-class AbstractRuntimeCacher(AbstractDataCacher):
-    """DataCacher for caching Node outputs to RAM."""
+class RuntimeCacher(DataCacher):
+    """Abstract DataCacher for caching Node outputs to RAM."""
     __slots__ = ('__dataframe',)
     __dataframe: Optional[DataFrame]
 
@@ -43,7 +43,7 @@ class AbstractRuntimeCacher(AbstractDataCacher):
         raise ValueError("Cannot load non-cached data")
 
 
-class SingleInputRuntimeCacher(AbstractRuntimeCacher):
+class SingleInputRuntimeCacher(RuntimeCacher):
     """RuntimeCacher for caching single input Node."""
     __slots__ = ()
 

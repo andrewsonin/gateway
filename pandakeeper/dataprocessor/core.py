@@ -1,5 +1,6 @@
 from itertools import chain, repeat
-from typing import Optional, Union, Dict, List, Tuple, Iterator, Iterable
+from types import MappingProxyType
+from typing import Optional, Union, Dict, List, Tuple, Iterator, Iterable, Mapping
 
 import pandas as pd
 from pandera import DataFrameSchema
@@ -72,15 +73,15 @@ class DataProcessor(Node):
 
     @final
     @property
-    def positional_input_nodes(self) -> List[NodeConnection]:
+    def positional_input_nodes(self) -> Tuple[NodeConnection, ...]:
         """Returns positional input NodeConnections."""
-        return self.__positional_node_connections.copy()
+        return tuple(self.__positional_node_connections)
 
     @final
     @property
-    def named_input_nodes(self) -> Dict[str, NodeConnection]:
+    def named_input_nodes(self) -> Mapping[str, NodeConnection]:
         """Returns named input NodeConnections."""
-        return self.__named_node_connections.copy()
+        return MappingProxyType(self.__named_node_connections)
 
     @final
     def __connect_input_node_body(self,
