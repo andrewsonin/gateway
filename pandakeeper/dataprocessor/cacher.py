@@ -3,11 +3,12 @@ from typing import Optional
 from pandas import DataFrame
 from typing_extensions import final
 
-from pandakeeper.dataprocessor import DataProcessor
+from pandakeeper.dataprocessor import DataProcessor, NodeConnection
 
 __all__ = (
     'DataCacher',
     'RuntimeCacher',
+    'SingleInputCacher',
     'SingleInputRuntimeCacher',
 )
 
@@ -43,11 +44,14 @@ class RuntimeCacher(DataCacher):
         raise ValueError("Cannot load non-cached data")
 
 
-class SingleInputRuntimeCacher(RuntimeCacher):
-    """RuntimeCacher for caching single input Node."""
+class SingleInputCacher(DataCacher):
+    """DataCacher for caching single input Node."""
     __slots__ = ()
 
-    def _load_non_cached(self) -> DataFrame:
+    @final
+    def _get_single_node_connection(self) -> NodeConnection:
+        """Returns single NodeConnection."""
+
         pnc = self.positional_input_nodes
         nnc = self.named_input_nodes
         total_dfs = len(nnc) + len(pnc)
@@ -57,10 +61,15 @@ class SingleInputRuntimeCacher(RuntimeCacher):
                 f"Actual number of connections: {total_dfs}"
             )
         try:
-            node_connection = pnc[0]
+            return pnc[0]
         except IndexError:
-            node_connection = next(iter(nnc.values()))
-        return node_connection.extract_data()
+            return next(iter(nnc.values()))
 
-    def transform_data(self, data: DataFrame) -> DataFrame:
-        return data
+    @final
+    def _load_non_cached(self) -> DataFrame:
+        return self._get_single_node_connection().extract_data()
+
+
+class SingleInputRuntimeCacher(RuntimeCacher, SingleInputCacher):
+    """RuntimeCacher for caching single input Node."""
+    __slots__ = ()
