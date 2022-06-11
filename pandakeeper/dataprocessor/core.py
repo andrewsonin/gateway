@@ -120,7 +120,7 @@ class DataProcessor(Node):
         """
         if isinstance(node, Node):
             return NodeConnection(node), keyword
-        elif isinstance(node, NodeConnection):
+        if isinstance(node, NodeConnection):
             return node, keyword
         if keyword is None:
             err_msg = f"Positional argument in position {arg_position} has incompatible type: {type(node)}"

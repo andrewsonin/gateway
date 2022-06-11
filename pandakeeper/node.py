@@ -39,6 +39,10 @@ class Node(metaclass=ABCMeta):
         return self.__gateway_id
 
     @final
+    def __str__(self) -> str:
+        return f'{type(self).__name__}(gateway_id={self.__gateway_id})'
+
+    @final
     @property
     def _output_validator(self) -> DataFrameSchema:
         """
@@ -121,14 +125,12 @@ class Node(metaclass=ABCMeta):
         if self.__already_cached:
             return
         if not self._is_parental_graph_topo_sorted:
-            node_id = self.__gateway_id
-            raise LoopedGraphError(f"Parental graph of Node (ID={node_id}) has loops")
+            raise LoopedGraphError(f"Parental graph of {self} has loops")
         for parent in Node.__parental_graph[self]:
             if parent.use_cached and not parent.__already_cached:
                 parent.__make_node_cached()
         if not self.use_cached:
-            node_id = self.__gateway_id
-            warn(f"'make_node_cached' called for Node (ID={node_id}) with False 'use_cached' property", RuntimeWarning)
+            warn(f"'make_node_cached' called for Node {self} with False 'use_cached' property", RuntimeWarning)
             return
         self.__make_node_cached()
 
@@ -146,8 +148,7 @@ class Node(metaclass=ABCMeta):
             while True:
                 cur_node = nodes_to_visit.pop()
                 if cur_node in visited_nodes:
-                    node_id = cur_node.__gateway_id
-                    raise LoopedGraphError(f"Node with ID={node_id} is child of itself")
+                    raise LoopedGraphError(f"Node {self} is child of itself")
                 if cur_node.__already_cached:
                     cur_node._clear_cache_storage()
                     cur_node.__already_cached = False
@@ -168,8 +169,7 @@ class Node(metaclass=ABCMeta):
             data = self._load_cached()
             return self.__output_validator.validate(data)
         if not self._is_parental_graph_topo_sorted:
-            node_id = self.__gateway_id
-            raise LoopedGraphError(f"Parental graph of Node (ID={node_id}) has loops")
+            raise LoopedGraphError(f"Parental graph of Node {self} has loops")
         data = self._load_non_cached()
         data = self.transform_data(data)
         data = self.__output_validator.validate(data)

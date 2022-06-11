@@ -63,7 +63,8 @@ class SingleInputCacher(DataCacher):
         try:
             return pnc[0]
         except IndexError:
-            return next(iter(nnc.values()))
+            pass
+        return next(iter(nnc.values()))
 
     @final
     def _load_non_cached(self) -> DataFrame:
